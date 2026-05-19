@@ -7,7 +7,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-load_dotenv(override=True)
+load_dotenv(override=False)
 
 
 class Base(DeclarativeBase):
@@ -16,6 +16,8 @@ class Base(DeclarativeBase):
 
 @lru_cache(maxsize=1)
 def get_database_url() -> str | None:
+    if os.getenv("DISABLE_DATABASE") == "1":
+        return None
     return os.getenv("DATABASE_URL")
 
 

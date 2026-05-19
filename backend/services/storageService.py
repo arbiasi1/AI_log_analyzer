@@ -1,3 +1,5 @@
+from collections import Counter
+
 from sqlalchemy import desc
 from sqlalchemy.exc import SQLAlchemyError
 from fastapi import HTTPException
@@ -65,6 +67,51 @@ def get_history() -> list[AnalysisRecord]:
             ) from exc
 
     return list(_history)
+
+
+def get_operational_overview() -> dict:
+    records = get_history()
+    if not records:
+        return {
+            "total_analyses": 0,
+            "critical": 0,
+            "warning": 0,
+            "good": 0,
+            "average_incident_score": 0,
+            "top_services": [],
+            "top_patterns": [],
+        }
+
+    health_counts = Counter(record.result.overall_health for record in records)
+    service_counts: Counter[str] = Counter()
+    pattern_counts: Counter[str] = Counter()
+
+    for record in records:
+        for service in record.result.impacted_services:
+            service_counts[service.service] += service.impact_score
+        for finding in record.result.errors_found:
+            pattern_counts[finding.error] += finding.frequency
+
+    average_score = round(
+        sum(record.result.incident_score for record in records) / len(records),
+        1,
+    )
+
+    return {
+        "total_analyses": len(records),
+        "critical": health_counts.get("critical", 0),
+        "warning": health_counts.get("warning", 0),
+        "good": health_counts.get("good", 0),
+        "average_incident_score": average_score,
+        "top_services": [
+            {"name": name, "score": score}
+            for name, score in service_counts.most_common(5)
+        ],
+        "top_patterns": [
+            {"name": name, "count": count}
+            for name, count in pattern_counts.most_common(5)
+        ],
+    }
 
 
 def _preview(raw_logs: str) -> str:

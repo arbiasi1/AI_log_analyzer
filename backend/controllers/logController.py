@@ -2,7 +2,7 @@ from fastapi import File, Form, HTTPException, UploadFile
 
 from backend.models.schemas import AnalyzeRequest, AnalysisRecord, AnalysisResult
 from backend.services.aiService import analyze_logs
-from backend.services.storageService import get_history, save_analysis
+from backend.services.storageService import get_history, get_operational_overview, save_analysis
 
 ALLOWED_EXTENSIONS = {".log", ".txt"}
 MAX_LOG_CHARS = 80_000
@@ -55,6 +55,10 @@ async def history_controller() -> list[AnalysisRecord]:
     return get_history()
 
 
+async def operational_overview_controller() -> dict:
+    return get_operational_overview()
+
+
 def sample_logs_controller() -> dict[str, str]:
     return {
         "logs": "\n".join(
@@ -65,6 +69,9 @@ def sample_logs_controller() -> dict[str, str]:
                 "[INFO] Server restarted successfully",
                 "[ERROR] Database connection failed at 03:47",
                 "[WARN] Disk usage above 85%",
+                "[CRITICAL] API gateway returned 504 for checkout-service",
+                "[ERROR] checkout-service retry exhausted after auth-service timeout",
+                "[WARN] Queue worker lag above threshold for billing jobs",
             ]
         )
     }

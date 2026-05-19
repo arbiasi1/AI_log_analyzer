@@ -1,8 +1,12 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.db.database import database_connected, database_enabled, get_database_url, init_db
+from backend.routes.authRoutes import router as auth_router
 from backend.routes.logRoutes import router as log_router
+from backend.routes.platformRoutes import router as platform_router
 
 
 app = FastAPI(
@@ -24,7 +28,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth_router)
 app.include_router(log_router)
+app.include_router(platform_router)
 
 
 @app.on_event("startup")
@@ -41,6 +47,8 @@ async def health_check():
         "storage": "postgres" if database_connected() else "memory",
         "database_configured": database_enabled(),
         "database_url": _safe_database_url(db_url),
+        "ai_engine": "openai" if os.getenv("OPENAI_API_KEY") else "local-ml",
+        "ai_model": os.getenv("OPENAI_MODEL", "gpt-4o-mini") if os.getenv("OPENAI_API_KEY") else None,
     }
 
 
