@@ -481,9 +481,7 @@ function AnalyzerView(props) {
   return (
     <div className="analysis-grid">
       <LogIntake {...props} />
-      <section className="panel">
-        {props.result ? <Results record={props.result} stats={props.stats} onExport={props.onExport} /> : <EmptyState />}
-      </section>
+      {props.result ? <Results record={props.result} stats={props.stats} onExport={props.onExport} /> : <EmptyState />}
     </div>
   );
 }

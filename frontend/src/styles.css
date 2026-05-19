@@ -189,10 +189,17 @@ h1, h2, h3, p { margin-top: 0; }
 .kpi-card.warning svg { color: #a16207; }
 .kpi-card.danger svg { color: #b91c1c; }
 
-.command-grid, .analysis-grid {
+.command-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(360px, 0.8fr);
   gap: 16px;
+}
+
+.analysis-grid {
+  display: grid;
+  grid-template-columns: minmax(340px, 0.72fr) minmax(680px, 1.45fr);
+  gap: 16px;
+  align-items: start;
 }
 
 .split-grid {
@@ -572,6 +579,7 @@ tbody tr:last-child td { border-bottom: 0; }
 .empty-state {
   display: grid;
   place-items: center;
+  min-width: 0;
   min-height: 360px;
   padding: 34px;
   color: #586774;
